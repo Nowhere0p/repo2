@@ -1,0 +1,65 @@
+import java.util.Arrays;
+
+public class RoundRobin {
+
+    static class Process {
+        int id;          // Process ID
+        int burstTime;   // Burst time
+        int waitingTime; // Waiting time
+        int turnaroundTime; // Turnaround time
+        int remainingTime; // Remaining burst time
+
+        Process(int id, int burstTime) {
+            this.id = id;
+            this.burstTime = burstTime;
+            this.remainingTime = burstTime; // Initially remaining time is equal to burst time
+        }
+    }
+
+    public static void calculateAvgTATandCT(Process[] processes, int quantum) {
+        int totalTime = 0;
+        boolean done;
+
+        do {
+            done = true;
+            for (Process p : processes) {
+                if (p.remainingTime > 0) {
+                    done = false; // There are still processes to be completed
+                    if (p.remainingTime > quantum) {
+                        totalTime += quantum;
+                        p.remainingTime -= quantum;
+                    } else {
+                        totalTime += p.remainingTime;
+                        p.waitingTime = totalTime - p.burstTime; // Calculate waiting time
+                        p.remainingTime = 0;
+                    }
+                }
+            }
+        } while (!done); // Repeat until all processes are completed
+
+        // Calculate Turnaround Time (TAT) and Completion Time (CT)
+        System.out.printf("%-10s %-10s %-10s %-10s %-10s%n", "PID", "Burst", "Waiting", "TAT", "CT");
+        for (Process p : processes) {
+            p.turnaroundTime = p.burstTime + p.waitingTime; // TAT = Burst Time + Waiting Time
+            System.out.printf("%-10d %-10d %-10d %-10d %-10d%n", p.id, p.burstTime, p.waitingTime, p.turnaroundTime, totalTime);
+        }
+
+        // Calculate Average TAT and Average CT
+        double avgTAT = Arrays.stream(processes).mapToInt(p -> p.turnaroundTime).average().orElse(0.0);
+        double avgCT = (double) totalTime / processes.length;
+
+        System.out.printf("Average Turnaround Time (TAT): %.2f%n", avgTAT);
+        System.out.printf("Average Completion Time (CT): %.2f%n", avgCT);
+    }
+
+    public static void main(String[] args) {
+        Process[] processes = {
+            new Process(1, 10),
+            new Process(2, 5),
+            new Process(3, 8)
+        }; // Create processes with their burst times
+        int quantum = 4; // Time quantum
+
+        calculateAvgTATandCT(processes, quantum);
+    }
+}
