@@ -1,1 +1,29 @@
 <!-- hello -->
+#!/bin/bash
+
+# Prompt for input
+echo "Input a number:"
+read num
+
+# Check if the input is a number
+if ! [[ "$num" =~ ^[0-9]+$ ]]; then
+    echo "Error: Please enter a valid positive integer."
+    exit 1
+fi
+
+# Initialize variables
+sum=0
+length=${#num}
+
+# Loop through each digit of the number
+for (( i=0; i<length; i++ )); do
+    digit=${num:i:1}  # Get the i-th digit
+    sum=$((sum + digit ** length))  # Add the digit raised to the power of length
+done
+
+# Check if the sum equals the original number
+if [ $sum -eq $num ]; then
+    echo "$num is an Armstrong number."
+else
+    echo "$num is not an Armstrong number."
+fi
